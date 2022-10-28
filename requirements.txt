@@ -1,0 +1,16 @@
+apache-beam[gcp]==2.42.0
+pandas==1.5.1
+toml
+wheel
+fsspec
+gcsfs
+grpcio
+numpy
+pandas
+scikit-learn
+seaborn
+requests
+pvlib
+cvxpy
+Mosek
+solar-data-tools
