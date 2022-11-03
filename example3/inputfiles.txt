@@ -1,0 +1,8 @@
+gs://jimmy_beam_bucket/pvdata/10010.csv
+gs://jimmy_beam_bucket/pvdata/10059.csv
+gs://jimmy_beam_bucket/pvdata/10284.csv
+gs://jimmy_beam_bucket/pvdata/10838.csv
+gs://jimmy_beam_bucket/pvdata/10795.csv
+gs://jimmy_beam_bucket/pvdata/10807.csv
+gs://jimmy_beam_bucket/pvdata/10858.csv
+gs://jimmy_beam_bucket/pvdata/10877.csv

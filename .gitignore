@@ -1,3 +1,4 @@
 *.lic
 /venv
 .env
+*.csv

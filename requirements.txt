@@ -1,4 +1,8 @@
 apache-beam[gcp]==2.42.0
+google-cloud-pubsub
+google-cloud-storage
+google-cloud
+
 pandas==1.5.1
 toml
 wheel
