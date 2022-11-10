@@ -19,7 +19,7 @@ pip install ./transformers
 # Run pipeline
 
 # --------------------
-# Local
+# Local GCD
 # --------------------
 echo "## Run local container"
 python -m main \
@@ -32,6 +32,18 @@ python -m main \
   --environment_config $IMAGE_URI
 
 
-
-
-
+IMAGE_LOCAL="jimmyleu76/beam_test:latest"
+docker build -t $IMAGE_LOCAL .
+docker push $IMAGE_LOCAL
+# --------------------
+# Local Image
+# --------------------
+echo "## Run local container"
+python -m main \
+  --runner PortableRunner \
+  --input ./kinglear-1.txt \
+  --output gs://jimmy_beam_bucket/demo_files/results \
+  --platform linux/amd64 \
+  --job_endpoint embed \
+  --environment_type "DOCKER"  \
+  --environment_config $IMAGE_LOCAL
