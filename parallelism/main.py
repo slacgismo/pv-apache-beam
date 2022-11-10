@@ -74,22 +74,10 @@ class WordExtractingDoFn(beam.DoFn):
             duration = int(end_time - start_time)
             if duration >= delay:
                 break
-
-        # text_line = element.strip()
-        # if not text_line:
-        #     self.empty_line_counter.inc(1)
         words = re.findall(r'[\w\']+', element, re.UNICODE)
-        # for w in words:
-        #     self.words_counter.inc()
-        #     self.word_lengths_counter.inc(len(w))
-        #     self.word_lengths_dist.update(len(w))
 
-        # time.sleep()
         logging.getLogger().warning('PARALLEL END : ' + str(n))
-        # time.sleep(5)
-
         return words
-        # return re.findall(r'[\w\']+', element, re.UNICODE)
 
 
 def print_row(element):
@@ -131,11 +119,9 @@ def run(argv=None, save_main_session=True):
             | 'Split' >> (beam.ParDo(WordExtractingDoFn()).with_output_types(str))
             | 'PairWithOne' >> beam.Map(lambda x: (x, 1))
             | 'GroupAndSum' >> beam.CombinePerKey(sum)
-            # | 'Print row' >> (beam.Map)
         )
 
         # Format the counts into a PCollection of strings.
-
         def format_result(word, count):
             return '%s: %d' % (word, count)
 

@@ -25,4 +25,3 @@ COPY --from=beam_python /opt/apache/beam /opt/apache/beam
 
 ENTRYPOINT [ "/opt/apache/beam/boot" ]
 
-aws s3 cp s3://pv.insight.nrel/PVO/PVOutput LocalFolder --recursive

@@ -92,3 +92,4 @@ if __name__ == '__main__':
 # https://stackoverflow.com/questions/70575165/how-to-execute-custom-splittable-dofn-in-parallel
 # https://github.com/apache/beam/blob/master/sdks/python/apache_beam/testing/synthetic_pipeline.py
 # https://jayendrapatil.com/google-cloud-dataflow/
+# https://stackoverflow.com/questions/70575165/how-to-execute-custom-splittable-dofn-in-parallel

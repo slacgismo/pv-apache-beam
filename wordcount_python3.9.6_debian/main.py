@@ -19,35 +19,21 @@
 
 # pytype: skip-file
 
-# beam-playground:
-#   name: WordCount
-#   description: An example that counts words in Shakespeare's works.
-#   multifile: false
-#   pipeline_options: --output output.txt
-#   context_line: 44
-#   categories:
-#     - Combiners
-#     - Options
-#     - Quickstart
-#   complexity: MEDIUM
-#   tags:
-#     - options
-#     - count
-#     - combine
-#     - strings
 
 import argparse
 import logging
-import re
+
 
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.io import WriteToText
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
+# from transformers.pv_transformers import WordExtractingDoFn
+import re
 
 
-class WordExtractingDoFn(beam.DoFn):
+class WordExtractingDoFnNoNumpy(beam.DoFn):
     """Parse each line of input text into words."""
 
     def process(self, element):
@@ -62,29 +48,13 @@ class WordExtractingDoFn(beam.DoFn):
         import time
         n = random.randint(0, 1000)
         # time.sleep(5)
-        logging.getLogger().warning('PARALLEL START? ' + str(n))
-        # time.sleep(5)
-
-        # text_line = element.strip()
-        # if not text_line:
-        #     self.empty_line_counter.inc(1)
+        logging.getLogger().warning('PARALLEL START : ' + str(n))
+        delay = 1
+        start_time = float(time.time())
         words = re.findall(r'[\w\']+', element, re.UNICODE)
-        # for w in words:
-        #     self.words_counter.inc()
-        #     self.word_lengths_counter.inc(len(w))
-        #     self.word_lengths_dist.update(len(w))
 
-        # time.sleep()
-        logging.getLogger().warning('PARALLEL END? ' + str(n))
-        # time.sleep(5)
-
+        logging.getLogger().warning('PARALLEL END : ' + str(n))
         return words
-        # return re.findall(r'[\w\']+', element, re.UNICODE)
-
-
-def print_row(element):
-    print(element)
-    return element
 
 
 def run(argv=None, save_main_session=True):
@@ -108,6 +78,7 @@ def run(argv=None, save_main_session=True):
     pipeline_options.view_as(
         SetupOptions).save_main_session = save_main_session
 
+    input_dir = known_args.input
     # The pipeline will be run on exiting the with block.
     with beam.Pipeline(options=pipeline_options) as p:
 
@@ -117,15 +88,12 @@ def run(argv=None, save_main_session=True):
         counts = (
             lines
             | 'Reshuffle' >> beam.Reshuffle()
-            | 'Split' >> (beam.ParDo(WordExtractingDoFn()).with_output_types(str))
-
+            | 'Split' >> (beam.ParDo(WordExtractingDoFnNoNumpy()).with_output_types(str))
             | 'PairWithOne' >> beam.Map(lambda x: (x, 1))
             | 'GroupAndSum' >> beam.CombinePerKey(sum)
-            # | 'Print row' >> (beam.Map)
         )
 
         # Format the counts into a PCollection of strings.
-
         def format_result(word, count):
             return '%s: %d' % (word, count)
 

@@ -192,7 +192,7 @@ def run(argv=None, save_main_session=True):
 
         # Read the text file[pattern] into a PCollection.
         lines = p | 'Read' >> ReadFromText(input_file)
-
+    
         solardatatools = (
             lines
             | 'Reshuffle' >> beam.Reshuffle()
