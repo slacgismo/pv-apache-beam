@@ -1,0 +1,13 @@
+apache-beam[gcp]
+pandas
+fsspec
+gcsfs
+numpy
+pandas
+scikit-learn
+seaborn
+requests
+pvlib
+cvxpy
+Mosek
+solar-data-tools
