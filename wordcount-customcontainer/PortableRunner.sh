@@ -33,7 +33,7 @@ python -m main \
 
 
 IMAGE_LOCAL="jimmyleu76/beam_test:latest"
-docker build -t $IMAGE_LOCAL .
+docker buildx build --platform linux/amd64 -t $IMAGE_LOCAL .
 docker push $IMAGE_LOCAL
 # --------------------
 # Local Image
