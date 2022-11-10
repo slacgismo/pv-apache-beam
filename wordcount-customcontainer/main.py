@@ -19,22 +19,6 @@
 
 # pytype: skip-file
 
-# beam-playground:
-#   name: WordCount
-#   description: An example that counts words in Shakespeare's works.
-#   multifile: false
-#   pipeline_options: --output output.txt
-#   context_line: 44
-#   categories:
-#     - Combiners
-#     - Options
-#     - Quickstart
-#   complexity: MEDIUM
-#   tags:
-#     - options
-#     - count
-#     - combine
-#     - strings
 
 import argparse
 import logging
@@ -45,7 +29,32 @@ from apache_beam.io import ReadFromText
 from apache_beam.io import WriteToText
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
-from transformers.pv_transformers import WordExtractingDoFn
+# from transformers.pv_transformers import WordExtractingDoFn
+import re
+
+
+class WordExtractingDoFnNoNumpy(beam.DoFn):
+    """Parse each line of input text into words."""
+
+    def process(self, element):
+        """Returns an iterator over the words of this element.
+        The element is a line of text.  If the line is blank, note that, too.
+        Args:
+          element: the element being processed
+        Returns:
+          The processed element.
+        """
+        import random
+        import time
+        n = random.randint(0, 1000)
+        # time.sleep(5)
+        logging.getLogger().warning('PARALLEL START : ' + str(n))
+        delay = 1
+        start_time = float(time.time())
+        words = re.findall(r'[\w\']+', element, re.UNICODE)
+
+        logging.getLogger().warning('PARALLEL END : ' + str(n))
+        return words
 
 
 def run(argv=None, save_main_session=True):
@@ -79,7 +88,7 @@ def run(argv=None, save_main_session=True):
         counts = (
             lines
             | 'Reshuffle' >> beam.Reshuffle()
-            | 'Split' >> (beam.ParDo(WordExtractingDoFn()).with_output_types(str))
+            | 'Split' >> (beam.ParDo(WordExtractingDoFnNoNumpy()).with_output_types(str))
             | 'PairWithOne' >> beam.Map(lambda x: (x, 1))
             | 'GroupAndSum' >> beam.CombinePerKey(sum)
         )

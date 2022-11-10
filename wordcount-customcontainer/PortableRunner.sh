@@ -2,7 +2,7 @@
 echo "## Run pipeline with '--setup_file'."
 PROJECT=$(gcloud config get-value project)
 REGION=us-east1
-export PYTHON_VERSION=$(python -c "import sys; print('{}.{}'.format(*sys.version_info[0:2]))")
+export PYTHON_VERSION="3.9.1"
 
 # Build SDK container image
 echo "## Build SDK container."
@@ -21,19 +21,20 @@ pip install ./transformers
 # --------------------
 # Local GCD
 # --------------------
-echo "## Run local container"
-python -m main \
-  --runner PortableRunner \
-  --input ./kinglear-1.txt \
-  --output gs://jimmy_beam_bucket/demo_files/results \
-  --platform linux/amd64 \
-  --job_endpoint embed \
-  --environment_type "DOCKER"  \
-  --environment_config $IMAGE_URI
+# echo "## Run local container"
+# python -m main \
+#   --runner PortableRunner \
+#   --input ./kinglear-1.txt \
+#   --output gs://jimmy_beam_bucket/demo_files/results \
+#   --platform linux/amd64 \
+#   --job_endpoint embed \
+#   --environment_type "DOCKER"  \
+#   --environment_config $IMAGE_URI
 
 
-IMAGE_LOCAL="jimmyleu76/beam_test:latest"
-docker buildx build --platform linux/amd64 -t $IMAGE_LOCAL .
+IMAGE_LOCAL="jimmyleu76/beam_test_python3.9.6:latest"
+docker buildx build --platform linux/amd64 -t beam_test .
+docker tag beam_test $IMAGE_LOCAL
 docker push $IMAGE_LOCAL
 # --------------------
 # Local Image
@@ -47,3 +48,18 @@ python -m main \
   --job_endpoint embed \
   --environment_type "DOCKER"  \
   --environment_config $IMAGE_LOCAL
+
+
+python -m main --runner DataflowRunner \
+  --project $PROJECT \
+  --region $REGION \
+  --job_name gridlabd-init \
+  --experiments use_runner_v2 \
+  --input gs://jimmy_beam_bucket/wordscount/kinglear-1.txt \
+  --output gs://jimmy_beam_bucket/demo_files/part \
+  --temp_location gs://jimmy_beam_bucket/demo_files/temp \
+  --experiments no_use_multiple_sdk_containers \
+  --sdk_container_image $IMAGE_URI \
+  --sdk_location container \
+  --autoscalingAlgorithm NONE \
+  --num_workers 8
