@@ -42,9 +42,16 @@ docker push $IMAGE_LOCAL
 echo "## Run local container"
 python -m main \
   --runner PortableRunner \
-  --input ./kinglear-1.txt \
-  --output ./parallelism \
-  --platform linux/amd64 \
+  --input gs://jimmy_beam_bucket/PGE/AT0001.glm \
+  --output  gs://jimmy_beam_bucket/demo_files/gridlabd \
+  --job_endpoint embed \
+  --environment_type "DOCKER"  \
+  --environment_config $IMAGE_LOCAL
+
+  python -m main \
+  --runner PortableRunner \
+  --input ./AL0001.glm  \
+  --output  gs://jimmy_beam_bucket/demo_files/g_result \
   --job_endpoint embed \
   --environment_type "DOCKER"  \
   --environment_config $IMAGE_LOCAL
@@ -63,3 +70,13 @@ python -m main --runner DataflowRunner \
   --sdk_location container \
   --autoscalingAlgorithm NONE \
   --num_workers 8
+GOOGLE_APPLICATION_CREDENTIALS="/Users/jimmyleu/Development/GCP/beamdataflow-366220-6acb2a6a2aa1.json"
+
+
+	# $VERSION_DIR/bin/python3 -m pip install matplotlib Pillow pandas numpy networkx pytz pysolar PyGithub scikit-learn xlrd boto3
+	# $VERSION_DIR/bin/python3 -m pip install IPython censusdata
+
+python -m main --runner DirectRunner \
+--input gs://jimmy_beam_bucket/PGE/AT0001.glm \
+--output  gs://jimmy_beam_bucket/demo_files/gridlabd \
+--direct_num_workers 0

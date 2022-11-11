@@ -22,39 +22,22 @@
 
 import argparse
 import logging
-
+import subprocess
 
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.io import WriteToText
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
-# from transformers.pv_transformers import WordExtractingDoFn
+from transformers.pv_transformers import RunGridlabd
 import re
+import random
+import time
+import os 
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/Users/jimmyleu/Development/GCP/beamdataflow-366220-6acb2a6a2aa1.json"
 
 
-class WordExtractingDoFnNoNumpy(beam.DoFn):
-    """Parse each line of input text into words."""
 
-    def process(self, element):
-        """Returns an iterator over the words of this element.
-        The element is a line of text.  If the line is blank, note that, too.
-        Args:
-          element: the element being processed
-        Returns:
-          The processed element.
-        """
-        import random
-        import time
-        n = random.randint(0, 1000)
-        # time.sleep(5)
-        logging.getLogger().warning('PARALLEL START : ' + str(n))
-        delay = 1
-        start_time = float(time.time())
-        words = re.findall(r'[\w\']+', element, re.UNICODE)
-
-        logging.getLogger().warning('PARALLEL END : ' + str(n))
-        return words
 
 
 def run(argv=None, save_main_session=True):
@@ -83,25 +66,27 @@ def run(argv=None, save_main_session=True):
     with beam.Pipeline(options=pipeline_options) as p:
 
         # Read the text file[pattern] into a PCollection.
-        lines = p | 'Read' >> ReadFromText(known_args.input)
+        lines = p | 'Create' >> beam.Create([known_args.input])
 
         counts = (
             lines
-            | 'Reshuffle' >> beam.Reshuffle()
-            | 'Split' >> (beam.ParDo(WordExtractingDoFnNoNumpy()).with_output_types(str))
-            | 'PairWithOne' >> beam.Map(lambda x: (x, 1))
-            | 'GroupAndSum' >> beam.CombinePerKey(sum)
+            # | 'Reshuffle' >> beam.Reshuffle()
+            | 'Split' >> (beam.ParDo(RunGridlabd()))
+            # | 'Print' >> beam.Map(print)
+            # | 'Split' >> (beam.ParDo(WordExtractingDoFnNoNumpy()).with_output_types(str))
+            # | 'PairWithOne' >> beam.Map(lambda x: (x, 1))
+            # | 'GroupAndSum' >> beam.CombinePerKey(sum)
         )
 
         # Format the counts into a PCollection of strings.
-        def format_result(word, count):
-            return '%s: %d' % (word, count)
+        # def format_result(word, count):
+        #     return '%s: %d' % (word, count)
 
-        output = counts | 'Format' >> beam.MapTuple(format_result)
+        # output = counts | 'Format' >> beam.MapTuple(format_result)
 
         # Write the output using a "Write" transform that has side effects.
         # pylint: disable=expression-not-assigned
-        output | 'Write' >> WriteToText(known_args.output)
+        counts | 'Write' >> WriteToText(known_args.output)
 
 
 if __name__ == '__main__':

@@ -11,40 +11,54 @@ from apache_beam.options.pipeline_options import SetupOptions
 from apache_beam.transforms.window import GlobalWindow
 from apache_beam.utils.windowed_value import WindowedValue
 import re
-import pandas as pd
 import random
+import subprocess
+import os
 
-import numpy as np
 
-
-class WordExtractingDoFn(beam.DoFn):
+class RunGridlabd(beam.DoFn):
     """Parse each line of input text into words."""
 
     def process(self, element):
-        """Returns an iterator over the words of this element.
-        The element is a line of text.  If the line is blank, note that, too.
-        Args:
-          element: the element being processed
-        Returns:
-          The processed element.
-        """
-        import random
-        import time
+        filename = element
+        
+
         n = random.randint(0, 1000)
         # time.sleep(5)
-        logging.getLogger().warning('PARALLEL START : ' + str(n))
-        delay = 1
-        start_time = float(time.time())
-        while True:
-            A = np.array([[4, 3, 2], [-2, 2, 3], [3, -5, 2]])
-            B = np.array([25, -10, -4])
-            answer = np.linalg.inv(A).dot(B)
-            end_time = float(time.time())
+        # logging.getLogger().warning('PARALLEL START : ' + str(n))
+        if os.path.exists(filename):
+            logging.getLogger().warning(f"==== {filename} exit ========")
+        else:
+            logging.getLogger().warning(f"==== Not exit {filename} ========")
+        # run gridlabd 
+        # command = f"echo {filename} 1>>data.csv 2>>gridlabd.log"
+        
+        command = f"gridlabd {filename} 1>>data.csv 2>>gridlabd.log"
+        returncode = subprocess.call(command, shell=True)
+        logging.getLogger().warning(f"*********** returncode {returncode} ***************")
+        # if returncode != 0 :
+        #     errorObject = open("gridlabd.log","r")
+        #     error = errorObject.read()
+        #     logging.getLogger().warning(f"==== Error ====: {error}")
+        #     errorObject.close()
+        #     # logging.getLogger().warning('PARALLEL END : ' + str(n))
+        #     return error
+        if os.path.exists("gridlabd.log"):
+            logfile = open("gridlabd.log","r")
+            log  = logfile.read()
+            logging.getLogger().warning(f"== log ===: {log} ======")
+            logfile.close()
+            
+            return log
+        
+        if os.path.exists("data.csv"):
+            fileObject = open("data.csv","r")
+            data  = fileObject.read()
+            logging.getLogger().warning(f"== Data ===: {data} ======")
+            fileObject.close()
+            
 
-            duration = int(end_time - start_time)
-            if duration >= delay:
-                break
-        words = re.findall(r'[\w\']+', element, re.UNICODE)
+            logging.getLogger().warning('PARALLEL END : ' + str(n))
+            
+            return data
 
-        logging.getLogger().warning('PARALLEL END : ' + str(n))
-        return words
