@@ -29,7 +29,14 @@ RUN git clone -b develop-add-aws-install https://github.com/slacgismo/gridlabd.g
 WORKDIR /usr/local/src/gridlabd
 # install gridlabd
 RUN ./install.sh -t -v
+RUN ln -sf /usr/bin/python3.9 /usr/bin/python
+RUN apt-get install python3-pip -y
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir apache-beam[gcp]==2.42.0
 
+
+COPY --from=apache/beam_python3.9_sdk:2.42.0 /opt/apache/beam /opt/apache/beam
+ENTRYPOINT [ "/opt/apache/beam/boot" ]
 
 
 # # install python 3.9.6

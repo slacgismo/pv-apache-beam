@@ -32,9 +32,9 @@ pip install ./transformers
 #   --environment_config $IMAGE_URI
 
 
-IMAGE_LOCAL="jimmyleu76/gridlabd3.9.6:latest"
-docker buildx build --platform linux/amd64 -t gridlabd .
-docker tag beam_test $IMAGE_LOCAL
+IMAGE_LOCAL="jimmyleu76/gridlabd_86_3.9.6:latest"
+docker build -t gridlabd .
+docker tag gridlabd $IMAGE_LOCAL
 docker push $IMAGE_LOCAL
 # --------------------
 # Local Image
@@ -43,7 +43,7 @@ echo "## Run local container"
 python -m main \
   --runner PortableRunner \
   --input ./kinglear-1.txt \
-  --output gs://jimmy_beam_bucket/demo_files/results \
+  --output ./parallelism \
   --platform linux/amd64 \
   --job_endpoint embed \
   --environment_type "DOCKER"  \
