@@ -76,7 +76,6 @@ class LinearAlgebra(beam.DoFn):
             duration = int(end_time - start_time)
             if duration >= delay:
                 break
-        # words = re.findall(r'[\w\']+', element, re.UNICODE)
 
         logging.getLogger().warning(f'PARALLEL END : {str(n)} , Duraction: {duration}')
         yield (n, start_time, end_time, duration)

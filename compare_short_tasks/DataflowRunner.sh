@@ -58,11 +58,18 @@ python -m main --runner DataflowRunner \
 
 
 python -m main --runner DirectRunner \
---input 100 \
+--input 5 \
 --output ./short_tasks \
 --direct_num_workers 0
 
 
+python -m main \
+--runner PortableRunner \
+--job_endpoint=localhost:8099 \
+--environment_type=LOOPBACK \
+--input 5 \
+--output ./short_tasks \
+--direct_num_workers 0
 
 python -m main --runner DataflowRunner \
   --project $PROJECT \
@@ -79,13 +86,13 @@ python -m main --runner DataflowRunner \
   python -m main --runner DataflowRunner \
   --project $PROJECT \
   --region $REGION \
-  --job_name linearalgebra-short-task-300-10 \
+  --job_name linearalgebra-short-task-1200-10-3 \
   --experiments use_runner_v2 \
-  --input 300 \
+  --input 1200 \
   --output gs://jimmy_beam_bucket/demo_files/short \
   --temp_location gs://jimmy_beam_bucket/demo_files/temp \
-  --autoscaling_algorithm=THROUGHPUT_BASED \
-  --max_num_workers=20 \
+  --autoscaling_algorithm=NONE \
+  --max_num_workers=8 \
   --num_workers=8
 
 

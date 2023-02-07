@@ -50,7 +50,9 @@ from solardatatools import DataHandler
 import random
 import time
 import pandas as pd
-from transformers.pv_transformers import ConverCSVToDataFrame, RunSolarDataToolsPipeline, GetEstimatedCapacity, CreateHandler
+# from transformers.pv
+# from transformers.pv_transformers import ConvertCSVToDataFrame, RunSolarDataToolsPipeline, GetEstimatedCapacity, CreateHandler
+from transformers.pv_transformers import RunSolarDataToolsPipeline, GetEstimatedCapacity
 
 
 def run(argv=None, save_main_session=True):
@@ -82,20 +84,20 @@ def run(argv=None, save_main_session=True):
         # lines = p | 'Read' >> ReadFromText(known_args.input)
         filter_files = (
             p
-            | 'Collect CSV files' >> MatchFiles(input_dir + "/*.csv")
-            | 'Read files' >> ReadMatches()
-            | 'Get file name' >> beam.Map(lambda file: (file.metadata.path))
+            | 'Collect CSV files' >> beam.io.fileio.MatchFiles(input_dir + "/*.csv")
+            | 'Match files' >> beam.io.fileio.ReadMatches()
+            | 'Get file name from metadata' >> beam.Map(lambda file: (file.metadata.path))
         )
         solardatatools = (
             filter_files
             | 'Reshuffle' >> beam.Reshuffle()
-            | 'Split' >> (beam.ParDo(ConverCSVToDataFrame(), "Power(W)"))
+            | 'Convert CSV to Dataframe' >> (beam.ParDo(ConvertCSVToDataFrame(), "Power(W)"))
             | 'Create solardatatools handler' >> beam.ParDo(CreateHandler())
-            | 'Run solardatatools pipeline' >> beam.ParDo(RunSolarDataToolsPipeline(), "Power(W)", "MOSEK")
+            | 'Run solardatatools pipeline' >> beam.ParDo(RunSolarDataToolsPipeline(), "MOSEK")
             | 'Get Estimation' >> beam.ParDo(GetEstimatedCapacity())
         )
 
-        solardatatools | 'Write' >> WriteToText(
+        solardatatools | 'Write' >> beam.io.WriteToText(
             known_args.output, num_shards=8)
 
 

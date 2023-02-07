@@ -37,16 +37,16 @@ class CreateHandler(beam.DoFn):
 
     def process(self, element):
 
-        (filename, thread_name, df) = element
+        (filename, column,thread_name, df) = element
         dh = DataHandler(df)
-        yield filename, thread_name, dh
+        yield filename,column, thread_name, dh
 
 
 class RunSolarDataToolsPipeline(beam.DoFn):
 
-    def process(self, element, power_col, solver):
+    def process(self, element, solver):
 
-        (filename, thread_name, data_handler) = element
+        (filename, power_col,thread_name, data_handler) = element
         data_handler.run_pipeline(
             power_col=power_col,
             min_val=-5,
@@ -90,4 +90,4 @@ class ConverCSVToDataFrame(beam.DoFn):
             parse_dates=[0],
             usecols=["Time", column],
         )
-        yield filename, thread_name, df
+        yield filename,column, thread_name, df
