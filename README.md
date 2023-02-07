@@ -1,6 +1,6 @@
 # pv-apache-beam
 
-This project is to demostrate how to setup the data pipeline to proces multiple files through the Apache Beam on basic `wordcount` `Solardatatools` and `gridlabd`. It demostrates how to setup and run the pipeline on your local machine and google cloud platform.
+This project is to demostrate how to setup the data pipeline to proces multiple files through the Apache Beam on basic `wordcount` and `Solardatatools`. It demostrates how to setup and run the pipeline on your local machine and google cloud platform.
 
 ## Installation and setup environment
 
@@ -19,9 +19,11 @@ Create a .env file, and set up the google cloud platform cradential json file lo
 export GOOGLE_APPLICATION_CREDENTIALS='your-cradential-location'
 ```
 
-### Run Examples in your local machine
+### Examples
 
 ### wordcount-example
+
+#### Run example in your local machine
 
 Under the `wordcount-example` folder, run the command below:
 
@@ -30,6 +32,8 @@ python -m wordcount --runner DirectRunner \
 --input ./kinglear-1.txt \
 --output ./results
 ```
+
+#### Run example on GCP
 
 #### solardatatools-onefile-example
 
@@ -59,6 +63,6 @@ python -m main --runner DirectRunner \
 --output ./results
 ```
 
-#### gridlabd-example
+# Run in local
 
 ### reference

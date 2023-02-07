@@ -1,5 +1,0 @@
-apache-beam[gcp]
-pandas
-fsspec
-gcsfs
-numpy
