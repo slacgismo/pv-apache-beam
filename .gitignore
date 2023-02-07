@@ -3,4 +3,4 @@
 /venv3.9
 .env
 *.csv
-. DS_Store
+.DS_Store
