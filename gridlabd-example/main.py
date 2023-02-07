@@ -1,12 +1,20 @@
 
+
 import argparse
 import logging
-import numpy as np
+import subprocess
+
 import apache_beam as beam
+from apache_beam.io import ReadFromText
+from apache_beam.io import WriteToText
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
-from apache_beam.io.fileio import MatchFiles, ReadMatches
-from transformers.pv_transformers import ConvertCSVToDataFrame, CreateHandler, RunSolarDataToolsPipeline, GetEstimatedCapacity
+from transformers.pv_transformers import RunGridlabd
+import re
+import random
+import time
+import os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/Users/jimmyleu/Development/GCP/beamdataflow-366220-6acb2a6a2aa1.json"
 
 
 def run(argv=None, save_main_session=True):
@@ -35,24 +43,27 @@ def run(argv=None, save_main_session=True):
     with beam.Pipeline(options=pipeline_options) as p:
 
         # Read the text file[pattern] into a PCollection.
-        # lines = p | 'Read' >> ReadFromText(known_args.input)
-        filter_files = (
-            p
-            | 'Collect CSV files' >> beam.io.fileio.MatchFiles(input_dir + "/*.csv")
-            | 'Match files' >> beam.io.fileio.ReadMatches()
-            | 'Get file name from metadata' >> beam.Map(lambda file: (file.metadata.path))
-        )
-        solardatatools = (
-            filter_files
-            | 'Reshuffle' >> beam.Reshuffle()
-            | 'Convert CSV to Dataframe' >> (beam.ParDo(ConvertCSVToDataFrame(), "Power(W)"))
-            | 'Create solardatatools handler' >> beam.ParDo(CreateHandler())
-            | 'Run solardatatools pipeline' >> beam.ParDo(RunSolarDataToolsPipeline(), "MOSEK")
-            | 'Get Estimation' >> beam.ParDo(GetEstimatedCapacity())
+        lines = p | 'Create' >> beam.Create([known_args.input])
+
+        counts = (
+            lines
+            # | 'Reshuffle' >> beam.Reshuffle()
+            | 'Split' >> (beam.ParDo(RunGridlabd()))
+            # | 'Print' >> beam.Map(print)
+            # | 'Split' >> (beam.ParDo(WordExtractingDoFnNoNumpy()).with_output_types(str))
+            # | 'PairWithOne' >> beam.Map(lambda x: (x, 1))
+            # | 'GroupAndSum' >> beam.CombinePerKey(sum)
         )
 
-        solardatatools | 'Write' >> beam.io.WriteToText(
-            known_args.output, num_shards=8)
+        # Format the counts into a PCollection of strings.
+        # def format_result(word, count):
+        #     return '%s: %d' % (word, count)
+
+        # output = counts | 'Format' >> beam.MapTuple(format_result)
+
+        # Write the output using a "Write" transform that has side effects.
+        # pylint: disable=expression-not-assigned
+        counts | 'Write' >> WriteToText(known_args.output)
 
 
 if __name__ == '__main__':
